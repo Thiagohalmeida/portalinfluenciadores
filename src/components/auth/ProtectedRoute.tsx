@@ -3,19 +3,22 @@ import { useEffect } from 'react';
 import { useAuth } from './AuthProvider';
 import { Navigate, Outlet, useNavigate } from 'react-router-dom';
 import LoginPage from '@/pages/Login';
-import { toast } from 'sonner';
+import { useToast } from '@/hooks/use-toast';
 
 const ProtectedRoute = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
   
   useEffect(() => {
     if (!loading && !user) {
-      toast('Acesso restrito', {
-        description: 'Você precisa estar logado para acessar esta página.'
+      toast({
+        title: 'Acesso restrito',
+        description: 'Você precisa estar logado para acessar esta página.',
+        variant: 'destructive'
       });
     }
-  }, [loading, user, navigate]);
+  }, [loading, user, navigate, toast]);
   
   if (loading) {
     return (

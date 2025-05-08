@@ -3,7 +3,7 @@ import { createContext, useContext, useEffect, useState, ReactNode } from 'react
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client'; // Atualizando para usar o cliente correto
 import { useNavigate } from 'react-router-dom';
-import { toast } from 'sonner';
+import { useToast } from '@/hooks/use-toast';
 
 type AuthContextType = {
   session: Session | null;
@@ -22,6 +22,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   useEffect(() => {
     // Fetch session on mount
@@ -58,7 +59,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     
     if (!error) {
       navigate('/painel');
-      toast('Login realizado com sucesso', {
+      toast({
+        title: 'Login realizado com sucesso',
         description: 'Bem-vindo ao Portal de Influenciadores!'
       });
     }
@@ -81,15 +83,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     });
     
     if (error) {
-      toast('Erro ao fazer login com Google', {
-        description: error.message
+      toast({
+        title: 'Erro ao fazer login com Google',
+        description: error.message,
+        variant: 'destructive'
       });
     }
   };
 
   const signOut = async () => {
     await supabase.auth.signOut();
-    toast('Logout realizado com sucesso');
+    toast({
+      title: 'Logout realizado com sucesso'
+    });
     navigate('/login');
   };
 
