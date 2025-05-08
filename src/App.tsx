@@ -19,16 +19,23 @@ const App = () => {
   const [supabaseReady, setSupabaseReady] = useState(false);
 
   useEffect(() => {
-    // Check if Supabase is ready
-    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 
-      (typeof window !== 'undefined' ? (window as any).__SUPABASE_URL__ : '');
-    const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 
-      (typeof window !== 'undefined' ? (window as any).__SUPABASE_ANON_KEY__ : '');
+    // Verificar se o Supabase está pronto
+    const checkSupabaseConfig = () => {
+      const supabaseUrl = (window as any).__SUPABASE_URL__ || import.meta.env.VITE_SUPABASE_URL;
+      const supabaseAnonKey = (window as any).__SUPABASE_ANON_KEY__ || import.meta.env.VITE_SUPABASE_ANON_KEY;
       
-    // Set a small delay to ensure env vars are loaded
+      return !!supabaseUrl && !!supabaseAnonKey;
+    };
+    
+    // Definir um pequeno atraso para garantir que as variáveis de ambiente sejam carregadas
     const timer = setTimeout(() => {
-      setSupabaseReady(true);
-    }, 100);
+      const isConfigured = checkSupabaseConfig();
+      setSupabaseReady(true); // Mesmo que não esteja configurado, precisamos renderizar para mostrar o status
+      
+      if (!isConfigured) {
+        console.warn("Configurações do Supabase não encontradas. Verifique sua integração.");
+      }
+    }, 500);
 
     return () => clearTimeout(timer);
   }, []);
@@ -55,7 +62,7 @@ const App = () => {
               <Route path="/cadastro" element={<Cadastro />} />
               <Route path="/login" element={<Login />} />
               
-              {/* Protected routes */}
+              {/* Rotas protegidas */}
               <Route element={<ProtectedRoute />}>
                 <Route path="/painel" element={<Painel />} />
               </Route>

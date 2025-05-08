@@ -3,33 +3,38 @@ import { createClient } from '@supabase/supabase-js';
 import type { Influencer } from '@/types/influencer';
 import { toast } from 'sonner';
 
-// Initialize Supabase client
-// Since we're using the Lovable Supabase integration, we can access these values
-// from the window object, which is set by the Lovable Supabase integration
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 
-  (typeof window !== 'undefined' ? (window as any).__SUPABASE_URL__ : '');
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 
-  (typeof window !== 'undefined' ? (window as any).__SUPABASE_ANON_KEY__ : '');
+// Inicializar cliente Supabase
+// Já que estamos usando a integração Lovable Supabase, podemos acessar estes valores
+// a partir do objeto window, que é definido pela integração Lovable Supabase
+const supabaseUrl = 
+  (typeof window !== 'undefined' && (window as any).__SUPABASE_URL__) || 
+  import.meta.env.VITE_SUPABASE_URL || 
+  '';
 
-// Check if Supabase configuration is available
+const supabaseAnonKey = 
+  (typeof window !== 'undefined' && (window as any).__SUPABASE_ANON_KEY__) || 
+  import.meta.env.VITE_SUPABASE_ANON_KEY || 
+  '';
+
+// Verificar se a configuração do Supabase está disponível
 if (!supabaseUrl || !supabaseAnonKey) {
-  console.error('Supabase URL or API key is missing. Make sure you have connected to Supabase via the Lovable integration.');
+  console.error('URL do Supabase ou chave API estão faltando. Certifique-se de ter conectado ao Supabase pela integração do Lovable.');
 }
 
-export const supabase = createClient(supabaseUrl || 'https://placeholder.supabase.co', supabaseAnonKey || 'placeholder');
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-// Database functions for influencers
+// Funções de banco de dados para influenciadores
 export const db = {
-  // Create a new influencer in Supabase
+  // Criar um novo influenciador no Supabase
   async createInfluencer(data: Partial<Influencer>): Promise<{ data: Influencer | null; error: any }> {
     if (!supabaseUrl || !supabaseAnonKey) {
-      toast('Configuration error: Supabase not properly configured', {
-        description: 'Please check your Supabase integration settings',
+      toast('Erro de configuração: Supabase não está configurado corretamente', {
+        description: 'Por favor, verifique suas configurações de integração do Supabase',
       });
-      return { data: null, error: new Error('Supabase not configured') };
+      return { data: null, error: new Error('Supabase não configurado') };
     }
 
-    // First, create in Supabase
+    // Primeiro, criar no Supabase
     const { data: newInfluencer, error } = await supabase
       .from('influencers')
       .insert([{
@@ -49,10 +54,10 @@ export const db = {
       .select()
       .single();
 
-    // Trigger BigQuery sync (we'll need to implement this with Edge Functions)
+    // Acionar sincronização com BigQuery (precisaremos implementar isso com Edge Functions)
     if (newInfluencer) {
       try {
-        // Call edge function to sync with BigQuery
+        // Chamar função de borda para sincronizar com BigQuery
         await supabase.functions.invoke('sync-to-bigquery', {
           body: { 
             table: 'influencers',
@@ -60,15 +65,15 @@ export const db = {
           }
         });
       } catch (syncError) {
-        console.error('Failed to sync with BigQuery:', syncError);
-        // We don't fail the operation if BigQuery sync fails
+        console.error('Falha ao sincronizar com BigQuery:', syncError);
+        // Não falharemos a operação se a sincronização com BigQuery falhar
       }
     }
 
     return { data: newInfluencer, error };
   },
 
-  // Get all influencers
+  // Obter todos os influenciadores
   async getInfluencers(): Promise<{ data: Influencer[] | null; error: any }> {
     return await supabase
       .from('influencers')
@@ -76,7 +81,7 @@ export const db = {
       .order('data_cadastro', { ascending: false });
   },
 
-  // Update an influencer
+  // Atualizar um influenciador
   async updateInfluencer(id: string, data: Partial<Influencer>): Promise<{ data: Influencer | null; error: any }> {
     const { data: updatedInfluencer, error } = await supabase
       .from('influencers')
@@ -85,7 +90,7 @@ export const db = {
       .select()
       .single();
 
-    // Sync with BigQuery
+    // Sincronizar com BigQuery
     if (updatedInfluencer) {
       try {
         await supabase.functions.invoke('sync-to-bigquery', {
@@ -96,21 +101,21 @@ export const db = {
           }
         });
       } catch (syncError) {
-        console.error('Failed to sync update with BigQuery:', syncError);
+        console.error('Falha ao sincronizar atualização com BigQuery:', syncError);
       }
     }
 
     return { data: updatedInfluencer, error };
   },
 
-  // Delete an influencer
+  // Excluir um influenciador
   async deleteInfluencer(id: string): Promise<{ error: any }> {
     const { error } = await supabase
       .from('influencers')
       .delete()
       .eq('id', id);
 
-    // Sync deletion with BigQuery
+    // Sincronizar exclusão com BigQuery
     if (!error) {
       try {
         await supabase.functions.invoke('sync-to-bigquery', {
@@ -121,17 +126,17 @@ export const db = {
           }
         });
       } catch (syncError) {
-        console.error('Failed to sync deletion with BigQuery:', syncError);
+        console.error('Falha ao sincronizar exclusão com BigQuery:', syncError);
       }
     }
 
     return { error };
   },
 
-  // Publish influencers (for future implementation)
+  // Publicar influenciadores (para implementação futura)
   async publishInfluencers(): Promise<{ count: number; names: string[] }> {
-    // This would trigger a server-side merge operation
-    // For now, we'll just return the count and names of all influencers
+    // Isso acionaria uma operação de mesclagem do lado do servidor
+    // Por enquanto, vamos apenas retornar a contagem e os nomes de todos os influenciadores
     const { data: influencers, error } = await supabase
       .from('influencers')
       .select('nome');

@@ -6,24 +6,34 @@ import { AlertCircle, CheckCircle2 } from "lucide-react";
 
 export default function SupabaseStatus() {
   const [connected, setConnected] = useState<boolean | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     async function checkConnection() {
       try {
         const { data, error } = await supabase.from('influencers').select('count()', { count: 'exact', head: true });
+        
         if (error) {
-          console.error("Supabase connection error:", error);
+          console.error("Erro de conexão com Supabase:", error);
           setConnected(false);
+          setErrorMessage(error.message);
         } else {
           setConnected(true);
+          setErrorMessage(null);
         }
-      } catch (err) {
-        console.error("Error checking Supabase connection:", err);
+      } catch (err: any) {
+        console.error("Erro ao verificar conexão com Supabase:", err);
         setConnected(false);
+        setErrorMessage(err.message || "Erro desconhecido");
       }
     }
 
-    checkConnection();
+    // Pequeno atraso para garantir que as configurações foram carregadas
+    const timer = setTimeout(() => {
+      checkConnection();
+    }, 500);
+
+    return () => clearTimeout(timer);
   }, []);
 
   if (connected === null) {
@@ -43,7 +53,9 @@ export default function SupabaseStatus() {
       <AlertDescription>
         {connected
           ? "Sua aplicação está conectada corretamente ao Supabase."
-          : "Há um problema na conexão com o Supabase. Verifique se você configurou a integração corretamente."}
+          : errorMessage 
+            ? `Há um problema na conexão com o Supabase: ${errorMessage}` 
+            : "Há um problema na conexão com o Supabase. Verifique se você configurou a integração corretamente."}
       </AlertDescription>
     </Alert>
   );
