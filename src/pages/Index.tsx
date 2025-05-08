@@ -8,13 +8,13 @@ import Layout from '@/components/layout/Layout';
 const features = [
   {
     title: "Cadastro de Influenciadores",
-    description: "Registre novos influenciadores para suas campanhas de marketing com processo simplificado.",
+    description: "Registre novos influenciadores",
     icon: <Users className="h-6 w-6 text-brand-500" />,
     link: "/cadastro"
   },
   {
     title: "Gerenciamento de Campanhas",
-    description: "Visualize, edite e publique campanhas de marketing para os influenciadores cadastrados.",
+    description: "Visualize, edite e publique as campanhas para os influenciadores cadastrados.",
     icon: <BarChart3 className="h-6 w-6 text-brand-500" />,
     link: "/painel"
   },
@@ -35,10 +35,10 @@ const Index = () => {
         <div className="relative z-10 pt-12 pb-16 md:pt-24 md:pb-32 px-4 md:px-6">
           <div className="container mx-auto flex flex-col items-center text-center">
             <h1 className="text-4xl md:text-6xl font-bold tracking-tight">
-              Influenciador <span className="text-brand-600">Nexus</span> Hub
+              <span className="text-brand-600">Portal</span> Influenciadores
             </h1>
             <p className="mt-6 text-lg md:text-xl max-w-3xl text-muted-foreground">
-              Plataforma completa para o gerenciamento de influenciadores e campanhas de marketing
+              Plataforma para o gerenciamento de influenciadores e suas campanhas
             </p>
             
             <div className="mt-10 flex flex-col sm:flex-row gap-4">

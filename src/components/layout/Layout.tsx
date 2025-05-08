@@ -14,7 +14,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         {children}
       </div>
       <footer className="bg-card shadow-inner py-4 text-center text-muted-foreground text-sm">
-        &copy; {new Date().getFullYear()} Influenciador Nexus Hub. Todos os direitos reservados.
+        &copy; {new Date().getFullYear()} Portal Influenciadores. Todos os direitos reservados.
       </footer>
     </div>
   );
