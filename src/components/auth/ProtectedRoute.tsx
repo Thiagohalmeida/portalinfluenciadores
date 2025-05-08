@@ -12,8 +12,7 @@ const ProtectedRoute = () => {
   useEffect(() => {
     if (!loading && !user) {
       toast('Acesso restrito', {
-        description: 'Você precisa estar logado para acessar esta página.',
-        variant: 'destructive',
+        description: 'Você precisa estar logado para acessar esta página.'
       });
     }
   }, [loading, user, navigate]);

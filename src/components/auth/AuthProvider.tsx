@@ -82,8 +82,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     
     if (error) {
       toast('Erro ao fazer login com Google', {
-        description: error.message,
-        variant: 'destructive'
+        description: error.message
       });
     }
   };
