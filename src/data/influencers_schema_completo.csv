@@ -1,0 +1,15 @@
+
+nome,tipo,obrigatorio,valor_padrao,descricao
+id,uuid,true,uuid_generate_v4(),Identificador único (chave primária)
+nome,text,true,,Nome do influenciador
+email,text,true,,Email de contato
+rede_social,text,true,'Instagram',Plataforma de mídia social (Instagram, TikTok, YouTube, etc.)
+modo_compartilhamento,text,true,'manual',Modo de compartilhamento (manual ou automatico)
+status,text,true,'Pendente',Status atual (Em andamento, Finalizada, Pendente)
+cliente,text,false,,Nome do cliente associado
+campanha,text,false,,Nome da campanha
+periodo_inicio,date,false,,Data de início da campanha
+periodo_fim,date,false,,Data de término da campanha
+data_cadastro,timestamp,true,now(),Data de criação do registro
+link,text,false,,Link do perfil do influenciador
+email_autorizacao,text,false,,Email para autorizações
