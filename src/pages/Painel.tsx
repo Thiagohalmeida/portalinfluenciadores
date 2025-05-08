@@ -5,6 +5,7 @@ import Layout from '@/components/layout/Layout';
 import PageContainer from '@/components/layout/PageContainer';
 import InfluencerTable from '@/components/painel/InfluencerTable';
 import NovaCampanhaForm from '@/components/painel/NovaCampanhaForm';
+import InfluencerStatusList from '@/components/painel/InfluencerStatusList';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { api } from '@/services/api';
 
@@ -50,9 +51,10 @@ const Painel = () => {
           onValueChange={setActiveTab}
           className="w-full"
         >
-          <TabsList className="grid w-full max-w-md grid-cols-2">
+          <TabsList className="grid w-full max-w-md grid-cols-3">
             <TabsTrigger value="influencers">Lista de Influenciadores</TabsTrigger>
             <TabsTrigger value="campaign">Nova Campanha</TabsTrigger>
+            <TabsTrigger value="status">Status</TabsTrigger>
           </TabsList>
           
           <TabsContent value="influencers" className="mt-6">
@@ -63,6 +65,10 @@ const Painel = () => {
             <div className="max-w-3xl mx-auto">
               <NovaCampanhaForm />
             </div>
+          </TabsContent>
+
+          <TabsContent value="status" className="mt-6">
+            <InfluencerStatusList />
           </TabsContent>
         </Tabs>
       </PageContainer>

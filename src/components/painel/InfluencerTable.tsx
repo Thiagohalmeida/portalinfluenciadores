@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Influencer, InfluencerStatus } from '@/types/influencer';
+import { Influencer, InfluencerStatus, SocialNetwork, SharingMode } from '@/types/influencer';
 import { api } from '@/services/api';
 import { format } from 'date-fns';
 import { 
@@ -50,11 +50,17 @@ const InfluencerTable: React.FC<InfluencerTableProps> = ({ onPublish }) => {
   const handleEdit = (influencer: Influencer) => {
     setEditingId(influencer.id);
     setEditForm({
+      nome: influencer.nome,
+      email: influencer.email,
+      rede_social: influencer.rede_social,
+      modo_compartilhamento: influencer.modo_compartilhamento,
       cliente: influencer.cliente || '',
       campanha: influencer.campanha || '',
       periodo_inicio: influencer.periodo_inicio || '',
       periodo_fim: influencer.periodo_fim || '',
       status: influencer.status,
+      link: influencer.link || '',
+      email_autorizacao: influencer.email_autorizacao || '',
     });
   };
 
@@ -152,6 +158,9 @@ const InfluencerTable: React.FC<InfluencerTableProps> = ({ onPublish }) => {
     return date ? format(new Date(date), 'dd/MM/yyyy') : '-';
   };
 
+  // Determine if automatic mode is selected to show/hide additional fields
+  const isAutomatic = editingId && editForm.modo_compartilhamento === 'automatico';
+
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
@@ -171,133 +180,237 @@ const InfluencerTable: React.FC<InfluencerTableProps> = ({ onPublish }) => {
           Nenhum influenciador encontrado no staging.
         </div>
       ) : (
-        <div className="rounded-md border overflow-hidden">
+        <div className="rounded-md border overflow-auto">
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>Nome</TableHead>
                 <TableHead>Email</TableHead>
                 <TableHead>Rede</TableHead>
+                <TableHead>Modo</TableHead>
                 <TableHead>Cliente</TableHead>
                 <TableHead>Campanha</TableHead>
                 <TableHead>Início</TableHead>
                 <TableHead>Fim</TableHead>
                 <TableHead>Status</TableHead>
+                {isAutomatic && (
+                  <>
+                    <TableHead>Link</TableHead>
+                    <TableHead>Email Autorização</TableHead>
+                  </>
+                )}
                 <TableHead className="text-right">Ações</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {influencers.map((influencer) => (
-                <TableRow key={influencer.id}>
-                  <TableCell className="font-medium">{influencer.nome}</TableCell>
-                  <TableCell>{influencer.email}</TableCell>
-                  <TableCell>{influencer.rede_social}</TableCell>
-                  
-                  <TableCell>
-                    {editingId === influencer.id ? (
-                      <Input
-                        value={editForm.cliente || ''}
-                        onChange={(e) => handleFormChange('cliente', e.target.value)}
-                        className="max-w-[150px]"
-                      />
-                    ) : (
-                      influencer.cliente || '-'
-                    )}
-                  </TableCell>
-                  
-                  <TableCell>
-                    {editingId === influencer.id ? (
-                      <Input
-                        value={editForm.campanha || ''}
-                        onChange={(e) => handleFormChange('campanha', e.target.value)}
-                        className="max-w-[150px]"
-                      />
-                    ) : (
-                      influencer.campanha || '-'
-                    )}
-                  </TableCell>
-                  
-                  <TableCell>
-                    {renderDateCell(
-                      editingId === influencer.id ? editForm.periodo_inicio : influencer.periodo_inicio,
-                      'periodo_inicio'
-                    )}
-                  </TableCell>
-                  
-                  <TableCell>
-                    {renderDateCell(
-                      editingId === influencer.id ? editForm.periodo_fim : influencer.periodo_fim,
-                      'periodo_fim'
-                    )}
-                  </TableCell>
-                  
-                  <TableCell>
-                    {editingId === influencer.id ? (
-                      <Select
-                        value={editForm.status}
-                        onValueChange={(value) => handleFormChange('status', value)}
-                      >
-                        <SelectTrigger className="max-w-[130px]">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Pendente">Pendente</SelectItem>
-                          <SelectItem value="Em andamento">Em andamento</SelectItem>
-                          <SelectItem value="Finalizada">Finalizada</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    ) : (
-                      <span className={`px-2 py-1 text-xs rounded-full ${
-                        influencer.status === 'Finalizada' 
-                          ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' 
-                          : influencer.status === 'Em andamento'
-                          ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
-                          : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
-                      }`}>
-                        {influencer.status}
-                      </span>
-                    )}
-                  </TableCell>
-                  
-                  <TableCell className="text-right space-x-2">
-                    {editingId === influencer.id ? (
+              {influencers.map((influencer) => {
+                // Determine if current row should show automatic fields
+                const showAutomaticFields = 
+                  (editingId === influencer.id && editForm.modo_compartilhamento === 'automatico') ||
+                  (editingId !== influencer.id && influencer.modo_compartilhamento === 'automatico');
+                
+                return (
+                  <TableRow key={influencer.id}>
+                    <TableCell className="font-medium">
+                      {editingId === influencer.id ? (
+                        <Input
+                          value={editForm.nome || ''}
+                          onChange={(e) => handleFormChange('nome', e.target.value)}
+                          className="max-w-[150px]"
+                        />
+                      ) : (
+                        influencer.nome
+                      )}
+                    </TableCell>
+                    
+                    <TableCell>
+                      {editingId === influencer.id ? (
+                        <Input
+                          value={editForm.email || ''}
+                          onChange={(e) => handleFormChange('email', e.target.value)}
+                          className="max-w-[150px]"
+                        />
+                      ) : (
+                        influencer.email
+                      )}
+                    </TableCell>
+                    
+                    <TableCell>
+                      {editingId === influencer.id ? (
+                        <Select
+                          value={editForm.rede_social}
+                          onValueChange={(value) => handleFormChange('rede_social', value)}
+                        >
+                          <SelectTrigger className="max-w-[130px]">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Instagram">Instagram</SelectItem>
+                            <SelectItem value="TikTok">TikTok</SelectItem>
+                            <SelectItem value="YouTube">YouTube</SelectItem>
+                            <SelectItem value="Twitch">Twitch</SelectItem>
+                            <SelectItem value="Twitter">Twitter</SelectItem>
+                            <SelectItem value="Facebook">Facebook</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      ) : (
+                        influencer.rede_social
+                      )}
+                    </TableCell>
+                    
+                    <TableCell>
+                      {editingId === influencer.id ? (
+                        <Select
+                          value={editForm.modo_compartilhamento}
+                          onValueChange={(value) => handleFormChange('modo_compartilhamento', value)}
+                        >
+                          <SelectTrigger className="max-w-[130px]">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="manual">Manual</SelectItem>
+                            <SelectItem value="automatico">Automático</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      ) : (
+                        influencer.modo_compartilhamento
+                      )}
+                    </TableCell>
+                    
+                    <TableCell>
+                      {editingId === influencer.id ? (
+                        <Input
+                          value={editForm.cliente || ''}
+                          onChange={(e) => handleFormChange('cliente', e.target.value)}
+                          className="max-w-[150px]"
+                        />
+                      ) : (
+                        influencer.cliente || '-'
+                      )}
+                    </TableCell>
+                    
+                    <TableCell>
+                      {editingId === influencer.id ? (
+                        <Input
+                          value={editForm.campanha || ''}
+                          onChange={(e) => handleFormChange('campanha', e.target.value)}
+                          className="max-w-[150px]"
+                        />
+                      ) : (
+                        influencer.campanha || '-'
+                      )}
+                    </TableCell>
+                    
+                    <TableCell>
+                      {renderDateCell(
+                        editingId === influencer.id ? editForm.periodo_inicio : influencer.periodo_inicio,
+                        'periodo_inicio'
+                      )}
+                    </TableCell>
+                    
+                    <TableCell>
+                      {renderDateCell(
+                        editingId === influencer.id ? editForm.periodo_fim : influencer.periodo_fim,
+                        'periodo_fim'
+                      )}
+                    </TableCell>
+                    
+                    <TableCell>
+                      {editingId === influencer.id ? (
+                        <Select
+                          value={editForm.status}
+                          onValueChange={(value) => handleFormChange('status', value)}
+                        >
+                          <SelectTrigger className="max-w-[130px]">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Pendente">Pendente</SelectItem>
+                            <SelectItem value="Em andamento">Em andamento</SelectItem>
+                            <SelectItem value="Finalizada">Finalizada</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      ) : (
+                        <span className={`px-2 py-1 text-xs rounded-full ${
+                          influencer.status === 'Finalizada' 
+                            ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' 
+                            : influencer.status === 'Em andamento'
+                            ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+                            : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+                        }`}>
+                          {influencer.status}
+                        </span>
+                      )}
+                    </TableCell>
+                    
+                    {showAutomaticFields && (
                       <>
-                        <Button 
-                          size="sm" 
-                          variant="ghost" 
-                          onClick={() => handleSaveEdit(influencer.id)}
-                        >
-                          <Save className="h-4 w-4" />
-                        </Button>
-                        <Button 
-                          size="sm" 
-                          variant="ghost" 
-                          onClick={handleCancelEdit}
-                        >
-                          <X className="h-4 w-4" />
-                        </Button>
-                      </>
-                    ) : (
-                      <>
-                        <Button 
-                          size="sm" 
-                          variant="ghost" 
-                          onClick={() => handleEdit(influencer)}
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                        <Button 
-                          size="sm" 
-                          variant="ghost"
-                          onClick={() => handleDelete(influencer.id)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                        <TableCell>
+                          {editingId === influencer.id ? (
+                            <Input
+                              value={editForm.link || ''}
+                              onChange={(e) => handleFormChange('link', e.target.value)}
+                              className="max-w-[150px]"
+                            />
+                          ) : (
+                            influencer.link || '-'
+                          )}
+                        </TableCell>
+                        
+                        <TableCell>
+                          {editingId === influencer.id ? (
+                            <Input
+                              value={editForm.email_autorizacao || ''}
+                              onChange={(e) => handleFormChange('email_autorizacao', e.target.value)}
+                              className="max-w-[150px]"
+                            />
+                          ) : (
+                            influencer.email_autorizacao || '-'
+                          )}
+                        </TableCell>
                       </>
                     )}
-                  </TableCell>
-                </TableRow>
-              ))}
+                    
+                    <TableCell className="text-right space-x-2">
+                      {editingId === influencer.id ? (
+                        <>
+                          <Button 
+                            size="sm" 
+                            variant="ghost" 
+                            onClick={() => handleSaveEdit(influencer.id)}
+                          >
+                            <Save className="h-4 w-4" />
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            variant="ghost" 
+                            onClick={handleCancelEdit}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </>
+                      ) : (
+                        <>
+                          <Button 
+                            size="sm" 
+                            variant="ghost" 
+                            onClick={() => handleEdit(influencer)}
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            variant="ghost"
+                            onClick={() => handleDelete(influencer.id)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         </div>

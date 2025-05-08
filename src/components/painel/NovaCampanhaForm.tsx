@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Influencer, InfluencerStatus } from '@/types/influencer';
+import { Influencer, InfluencerStatus, SocialNetwork, SharingMode } from '@/types/influencer';
 import { api } from '@/services/api';
 import { Calendar } from 'lucide-react';
 import { 
@@ -26,12 +26,15 @@ const NovaCampanhaForm: React.FC = () => {
     id: '',
     nome: '',
     email: '',
-    rede_social: '',
+    rede_social: '' as SocialNetwork,
+    modo_compartilhamento: 'manual' as SharingMode,
     cliente: '',
     campanha: '',
     periodo_inicio: '',
     periodo_fim: '',
     status: 'Em andamento' as InfluencerStatus,
+    link: '',
+    email_autorizacao: '',
   });
 
   useEffect(() => {
@@ -63,6 +66,9 @@ const NovaCampanhaForm: React.FC = () => {
         nome: influencer.nome,
         email: influencer.email,
         rede_social: influencer.rede_social,
+        modo_compartilhamento: influencer.modo_compartilhamento || 'manual',
+        link: influencer.link || '',
+        email_autorizacao: influencer.email_autorizacao || '',
       });
     }
   };
@@ -105,6 +111,9 @@ const NovaCampanhaForm: React.FC = () => {
         periodo_inicio: formData.periodo_inicio,
         periodo_fim: formData.periodo_fim,
         status: formData.status,
+        modo_compartilhamento: formData.modo_compartilhamento,
+        link: formData.link,
+        email_autorizacao: formData.email_autorizacao,
       });
       
       toast({
@@ -117,12 +126,15 @@ const NovaCampanhaForm: React.FC = () => {
         id: '',
         nome: '',
         email: '',
-        rede_social: '',
+        rede_social: '' as SocialNetwork,
+        modo_compartilhamento: 'manual' as SharingMode,
         cliente: '',
         campanha: '',
         periodo_inicio: '',
         periodo_fim: '',
-        status: 'Em andamento',
+        status: 'Em andamento' as InfluencerStatus,
+        link: '',
+        email_autorizacao: '',
       });
     } catch (error) {
       toast({
@@ -168,6 +180,96 @@ const NovaCampanhaForm: React.FC = () => {
           
           {formData.id && (
             <>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="nome">Nome do Influenciador</Label>
+                  <Input
+                    id="nome"
+                    name="nome"
+                    value={formData.nome}
+                    onChange={handleInputChange}
+                    placeholder="Nome completo"
+                    disabled
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    id="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    placeholder="Email de contato"
+                    disabled
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="rede_social">Rede Social</Label>
+                  <Select
+                    value={formData.rede_social}
+                    onValueChange={(value) => handleSelectChange('rede_social', value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Instagram">Instagram</SelectItem>
+                      <SelectItem value="TikTok">TikTok</SelectItem>
+                      <SelectItem value="YouTube">YouTube</SelectItem>
+                      <SelectItem value="Twitch">Twitch</SelectItem>
+                      <SelectItem value="Twitter">Twitter</SelectItem>
+                      <SelectItem value="Facebook">Facebook</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="modo_compartilhamento">Modo de Compartilhamento</Label>
+                  <Select 
+                    value={formData.modo_compartilhamento} 
+                    onValueChange={(value) => handleSelectChange('modo_compartilhamento', value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="manual">Manual</SelectItem>
+                      <SelectItem value="automatico">Automático</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              
+              {formData.modo_compartilhamento === 'automatico' && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="link">Link do Perfil</Label>
+                    <Input
+                      id="link"
+                      name="link"
+                      value={formData.link}
+                      onChange={handleInputChange}
+                      placeholder="Link do perfil na rede social"
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="email_autorizacao">Email de Autorização</Label>
+                    <Input
+                      id="email_autorizacao"
+                      name="email_autorizacao"
+                      value={formData.email_autorizacao}
+                      onChange={handleInputChange}
+                      placeholder="Email para autorização da API"
+                    />
+                  </div>
+                </div>
+              )}
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="cliente">Cliente</Label>
