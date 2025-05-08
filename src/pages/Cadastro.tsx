@@ -9,7 +9,7 @@ const Cadastro = () => {
     <Layout>
       <PageContainer title="Cadastro de Influenciador">
         <div className="max-w-4xl mx-auto">
-          <p className="text-muted-foreground mb-8">
+          <p className="text-muted-foreground mb-6">
             Preencha o formulário abaixo para registrar um novo influenciador em nossa base de dados.
             Após o cadastro, você poderá gerenciar as campanhas no painel de administração.
           </p>
