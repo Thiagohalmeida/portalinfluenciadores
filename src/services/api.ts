@@ -54,7 +54,7 @@ export const api = {
       email: data.email || '',
       rede_social: data.rede_social || 'Instagram',
       modo_compartilhamento: data.modo_compartilhamento || 'manual',
-      status: 'Pendente',
+      status: 'Pendente', // Always set status to "Pendente" for new registrations
       data_cadastro: new Date().toISOString(),
       link: data.link,
       email_autorizacao: data.email_autorizacao,

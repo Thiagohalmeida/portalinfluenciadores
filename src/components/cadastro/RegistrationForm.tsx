@@ -187,7 +187,7 @@ const RegistrationForm: React.FC = () => {
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="email_autorizacao">Email para autorização (opcional)</Label>
+                <Label htmlFor="email_autorizacao">Email para autorização</Label>
                 <Input 
                   id="email_autorizacao" 
                   name="email_autorizacao" 

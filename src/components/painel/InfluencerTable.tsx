@@ -35,7 +35,9 @@ const InfluencerTable: React.FC<InfluencerTableProps> = ({ onPublish }) => {
     try {
       setLoading(true);
       const data = await api.getStagingInfluencers();
-      setInfluencers(data);
+      // Filter to only show influencers with "Pendente" status
+      const pendingInfluencers = data.filter(inf => inf.status === 'Pendente');
+      setInfluencers(pendingInfluencers);
     } catch (error) {
       toast({
         title: "Erro ao carregar dados",
@@ -177,7 +179,7 @@ const InfluencerTable: React.FC<InfluencerTableProps> = ({ onPublish }) => {
         <div className="text-center py-10">Carregando influenciadores...</div>
       ) : influencers.length === 0 ? (
         <div className="text-center py-10 text-muted-foreground">
-          Nenhum influenciador encontrado no staging.
+          Nenhum influenciador pendente encontrado.
         </div>
       ) : (
         <div className="rounded-md border overflow-auto">

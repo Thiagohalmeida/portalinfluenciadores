@@ -18,6 +18,7 @@ const InfluencerStatusList: React.FC = () => {
   const fetchInfluencers = async () => {
     try {
       setLoading(true);
+      // Get all influencers to show their status (not just staging)
       const data = await api.getStagingInfluencers();
       setInfluencers(data);
     } catch (error) {
@@ -56,6 +57,7 @@ const InfluencerStatusList: React.FC = () => {
               <TableRow>
                 <TableHead>Nome</TableHead>
                 <TableHead>Rede Social</TableHead>
+                <TableHead>Modo Compartilhamento</TableHead>
                 <TableHead>Cliente</TableHead>
                 <TableHead>Campanha</TableHead>
                 <TableHead>Período</TableHead>
@@ -67,6 +69,7 @@ const InfluencerStatusList: React.FC = () => {
                 <TableRow key={influencer.id}>
                   <TableCell className="font-medium">{influencer.nome}</TableCell>
                   <TableCell>{influencer.rede_social}</TableCell>
+                  <TableCell>{influencer.modo_compartilhamento}</TableCell>
                   <TableCell>{influencer.cliente || '-'}</TableCell>
                   <TableCell>{influencer.campanha || '-'}</TableCell>
                   <TableCell>
