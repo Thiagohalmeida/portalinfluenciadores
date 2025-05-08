@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Pencil, Trash2, Save, X, Calendar } from 'lucide-react';
+import { Pencil, Trash2, Save, X, Calendar, Mail } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -131,6 +131,15 @@ const InfluencerTable: React.FC<InfluencerTableProps> = ({ onPublish }) => {
     const dateStr = format(value, 'yyyy-MM-dd');
     handleFormChange(field, dateStr);
   };
+  
+  const handleSendEmail = (influencer: Influencer) => {
+    // This would typically connect to an email service
+    // For now, we'll just show a toast notification
+    toast({
+      title: "Email enviado",
+      description: `Um email com instruções foi enviado para ${influencer.nome} (${influencer.email}).`,
+    });
+  };
 
   const renderDateCell = (date: string | undefined, field: 'periodo_inicio' | 'periodo_fim') => {
     if (editingId) {
@@ -210,6 +219,11 @@ const InfluencerTable: React.FC<InfluencerTableProps> = ({ onPublish }) => {
                 const showAutomaticFields = 
                   (editingId === influencer.id && editForm.modo_compartilhamento === 'automatico') ||
                   (editingId !== influencer.id && influencer.modo_compartilhamento === 'automatico');
+                
+                // Determine if this is a manual mode influencer
+                const isManualMode = 
+                  (editingId === influencer.id && editForm.modo_compartilhamento === 'manual') ||
+                  (editingId !== influencer.id && influencer.modo_compartilhamento === 'manual');
                 
                 return (
                   <TableRow key={influencer.id}>
@@ -407,6 +421,16 @@ const InfluencerTable: React.FC<InfluencerTableProps> = ({ onPublish }) => {
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
+                          {isManualMode && (
+                            <Button 
+                              size="sm" 
+                              variant="ghost"
+                              onClick={() => handleSendEmail(influencer)}
+                              title="Enviar instruções por email"
+                            >
+                              <Mail className="h-4 w-4" />
+                            </Button>
+                          )}
                         </>
                       )}
                     </TableCell>

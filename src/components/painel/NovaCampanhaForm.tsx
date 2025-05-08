@@ -171,7 +171,7 @@ const NovaCampanhaForm: React.FC = () => {
               <SelectContent>
                 {influencers.map((inf) => (
                   <SelectItem key={inf.id} value={inf.id}>
-                    {inf.nome} ({inf.rede_social})
+                    {inf.nome}
                   </SelectItem>
                 ))}
               </SelectContent>

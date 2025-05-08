@@ -44,7 +44,7 @@ const Painel = () => {
 
   return (
     <Layout>
-      <PageContainer title="Painel de Gerenciamento">
+      <PageContainer title="Lista de Influenciadores">
         <Tabs 
           defaultValue="influencers" 
           value={activeTab}
