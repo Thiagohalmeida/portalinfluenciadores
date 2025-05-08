@@ -52,7 +52,7 @@ const Painel = () => {
           className="w-full"
         >
           <TabsList className="grid w-full max-w-md grid-cols-3">
-            <TabsTrigger value="influencers">Lista de Influenciadores</TabsTrigger>
+            <TabsTrigger value="influencers">Gerenciamento</TabsTrigger>
             <TabsTrigger value="campaign">Nova Campanha</TabsTrigger>
             <TabsTrigger value="status">Status</TabsTrigger>
           </TabsList>

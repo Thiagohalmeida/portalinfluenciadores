@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -16,6 +15,10 @@ import {
 } from '@/components/ui/popover';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { format } from 'date-fns';
+
+// Predefined values for client and campaign dropdowns
+const clienteOptions = ["Bacana", "PlayUZU"];
+const campanhaOptions = []; // This will be populated when needed
 
 const NovaCampanhaForm: React.FC = () => {
   const { toast } = useToast();
@@ -273,26 +276,62 @@ const NovaCampanhaForm: React.FC = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="cliente">Cliente</Label>
-                  <Input
-                    id="cliente"
-                    name="cliente"
+                  <Select
                     value={formData.cliente}
-                    onChange={handleInputChange}
-                    placeholder="Nome do cliente"
-                    required
-                  />
+                    onValueChange={(value) => handleSelectChange('cliente', value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione um cliente" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {clienteOptions.map((cliente) => (
+                        <SelectItem key={cliente} value={cliente}>
+                          {cliente}
+                        </SelectItem>
+                      ))}
+                      <SelectItem value="outro">Outro</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {formData.cliente === 'outro' && (
+                    <Input
+                      id="clienteCustom"
+                      name="cliente"
+                      value={formData.cliente === 'outro' ? '' : formData.cliente}
+                      onChange={handleInputChange}
+                      placeholder="Digite o nome do cliente"
+                      className="mt-2"
+                    />
+                  )}
                 </div>
                 
                 <div className="space-y-2">
                   <Label htmlFor="campanha">Campanha</Label>
-                  <Input
-                    id="campanha"
-                    name="campanha"
+                  <Select
                     value={formData.campanha}
-                    onChange={handleInputChange}
-                    placeholder="Nome da campanha"
-                    required
-                  />
+                    onValueChange={(value) => handleSelectChange('campanha', value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione uma campanha" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {campanhaOptions.map((campanha) => (
+                        <SelectItem key={campanha} value={campanha}>
+                          {campanha}
+                        </SelectItem>
+                      ))}
+                      <SelectItem value="outro">Outra</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {formData.campanha === 'outro' && (
+                    <Input
+                      id="campanhaCustom"
+                      name="campanha"
+                      value={formData.campanha === 'outro' ? '' : formData.campanha}
+                      onChange={handleInputChange}
+                      placeholder="Digite o nome da campanha"
+                      className="mt-2"
+                    />
+                  )}
                 </div>
               </div>
               

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Pencil, Trash2, Save, X, Calendar, Mail } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -15,6 +14,10 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
+
+// Predefined values for client and campaign dropdowns
+const clienteOptions = ["Bacana", "PlayUZU"];
+const campanhaOptions = [];
 
 interface InfluencerTableProps {
   onPublish: () => void;
@@ -295,11 +298,22 @@ const InfluencerTable: React.FC<InfluencerTableProps> = ({ onPublish }) => {
                     
                     <TableCell>
                       {editingId === influencer.id ? (
-                        <Input
+                        <Select
                           value={editForm.cliente || ''}
-                          onChange={(e) => handleFormChange('cliente', e.target.value)}
-                          className="max-w-[150px]"
-                        />
+                          onValueChange={(value) => handleFormChange('cliente', value)}
+                        >
+                          <SelectTrigger className="max-w-[150px]">
+                            <SelectValue placeholder="Cliente" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {clienteOptions.map((cliente) => (
+                              <SelectItem key={cliente} value={cliente}>
+                                {cliente}
+                              </SelectItem>
+                            ))}
+                            <SelectItem value="outro">Outro</SelectItem>
+                          </SelectContent>
+                        </Select>
                       ) : (
                         influencer.cliente || '-'
                       )}
@@ -307,11 +321,22 @@ const InfluencerTable: React.FC<InfluencerTableProps> = ({ onPublish }) => {
                     
                     <TableCell>
                       {editingId === influencer.id ? (
-                        <Input
+                        <Select
                           value={editForm.campanha || ''}
-                          onChange={(e) => handleFormChange('campanha', e.target.value)}
-                          className="max-w-[150px]"
-                        />
+                          onValueChange={(value) => handleFormChange('campanha', value)}
+                        >
+                          <SelectTrigger className="max-w-[150px]">
+                            <SelectValue placeholder="Campanha" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {campanhaOptions.map((campanha) => (
+                              <SelectItem key={campanha} value={campanha}>
+                                {campanha}
+                              </SelectItem>
+                            ))}
+                            <SelectItem value="outro">Outra</SelectItem>
+                          </SelectContent>
+                        </Select>
                       ) : (
                         influencer.campanha || '-'
                       )}
