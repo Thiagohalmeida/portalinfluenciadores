@@ -1,10 +1,13 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { LayoutDashboard } from 'lucide-react';
+import { LayoutDashboard, LogOut, LogIn } from 'lucide-react';
 import { ThemeToggle } from './ThemeToggle';
+import { useAuth } from '@/components/auth/AuthProvider';
 
 const Navbar: React.FC = () => {
+  const { user, signOut } = useAuth();
+
   return (
     <nav className="bg-card shadow-md dark:shadow-gray-800 py-4 px-6 flex items-center justify-between">
       <div className="flex items-center">
@@ -18,9 +21,27 @@ const Navbar: React.FC = () => {
         <Link to="/cadastro" className="text-muted-foreground hover:text-foreground transition-colors">
           Cadastrar
         </Link>
-        <Link to="/painel" className="text-muted-foreground hover:text-foreground transition-colors">
-          Painel
-        </Link>
+        
+        {user ? (
+          <>
+            <Link to="/painel" className="text-muted-foreground hover:text-foreground transition-colors">
+              Painel
+            </Link>
+            <button 
+              onClick={() => signOut()}
+              className="text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
+            >
+              <LogOut size={16} />
+              Sair
+            </button>
+          </>
+        ) : (
+          <Link to="/login" className="text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1">
+            <LogIn size={16} />
+            Login
+          </Link>
+        )}
+        
         <ThemeToggle />
       </div>
     </nav>
