@@ -1,22 +1,37 @@
 
 import { useEffect } from 'react';
 import { useAuth } from './AuthProvider';
-import { Navigate, Outlet } from 'react-router-dom';
+import { Navigate, Outlet, useNavigate } from 'react-router-dom';
 import LoginPage from '@/pages/Login';
+import { toast } from 'sonner';
 
 const ProtectedRoute = () => {
   const { user, loading } = useAuth();
+  const navigate = useNavigate();
+  
+  useEffect(() => {
+    if (!loading && !user) {
+      toast('Acesso restrito', {
+        description: 'Você precisa estar logado para acessar esta página.',
+        variant: 'destructive',
+      });
+    }
+  }, [loading, user, navigate]);
   
   if (loading) {
-    // Add a loading state here if needed
-    return <div className="flex items-center justify-center h-screen">Carregando...</div>;
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        <span className="ml-3 text-lg">Carregando...</span>
+      </div>
+    );
   }
   
   if (!user) {
     return <LoginPage />;
   }
   
-  // User is authenticated, render the outlet
+  // Usuário está autenticado, renderiza o conteúdo
   return <Outlet />;
 };
 

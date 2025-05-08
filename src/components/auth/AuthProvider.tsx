@@ -1,8 +1,9 @@
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { Session, User } from '@supabase/supabase-js';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/integrations/supabase/client'; // Atualizando para usar o cliente correto
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 
 type AuthContextType = {
   session: Session | null;
@@ -11,6 +12,7 @@ type AuthContextType = {
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
   isAllowedDomain: (email: string) => boolean;
+  signInWithGoogle: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -53,12 +55,43 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
     
     const { error } = await supabase.auth.signInWithPassword({ email, password });
+    
+    if (!error) {
+      navigate('/painel');
+      toast('Login realizado com sucesso', {
+        description: 'Bem-vindo ao Portal de Influenciadores!'
+      });
+    }
+    
     return { error };
+  };
+
+  const signInWithGoogle = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        queryParams: {
+          // Configurando para apenas permitir emails do domínio específico
+          hd: 'controlf5.com.br',
+          // Escopo de acesso solicitado
+          scope: 'profile email'
+        },
+        redirectTo: `${window.location.origin}/painel`
+      }
+    });
+    
+    if (error) {
+      toast('Erro ao fazer login com Google', {
+        description: error.message,
+        variant: 'destructive'
+      });
+    }
   };
 
   const signOut = async () => {
     await supabase.auth.signOut();
-    navigate('/');
+    toast('Logout realizado com sucesso');
+    navigate('/login');
   };
 
   const value = {
@@ -68,6 +101,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     signIn,
     signOut,
     isAllowedDomain,
+    signInWithGoogle,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

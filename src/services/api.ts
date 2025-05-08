@@ -1,124 +1,102 @@
 
+import { supabase } from '@/integrations/supabase/client';
 import { Influencer } from '@/types/influencer';
 
-const API_BASE_URL = '/api';
-
-// Mock data for initial development
-const mockInfluencers: Influencer[] = [
-  {
-    id: '1',
-    nome: 'João Silva',
-    email: 'joao@example.com',
-    rede_social: 'Instagram',
-    modo_compartilhamento: 'automatico',
-    status: 'Pendente',
-    data_cadastro: new Date().toISOString(),
-    link: 'https://instagram.com/joaosilva'
-  },
-  {
-    id: '2',
-    nome: 'Maria Santos',
-    email: 'maria@example.com',
-    rede_social: 'TikTok',
-    modo_compartilhamento: 'manual',
-    status: 'Pendente',
-    data_cadastro: new Date().toISOString()
-  },
-  {
-    id: '3',
-    nome: 'Ana Pereira',
-    email: 'ana@example.com',
-    rede_social: 'YouTube',
-    modo_compartilhamento: 'automatico',
-    cliente: 'Nike',
-    campanha: 'Verão 2025',
-    status: 'Em andamento',
-    periodo_inicio: '2025-06-01',
-    periodo_fim: '2025-07-15',
-    data_cadastro: new Date().toISOString(),
-    link: 'https://youtube.com/anapereiravlogs'
-  }
-];
-
-// This would usually interact with a backend, but for now we'll use mock data
 export const api = {
-  // Cadastro de influenciadores (staging)
+  // Cadastro de influenciadores
   async registerInfluencer(data: Partial<Influencer>): Promise<Influencer> {
-    // In a real implementation, this would be a POST to the server
-    console.log('Registering influencer:', data);
+    const { data: newInfluencer, error } = await supabase
+      .from('influencers')
+      .insert([{
+        nome: data.nome || '',
+        email: data.email || '',
+        rede_social: data.rede_social || 'Instagram',
+        modo_compartilhamento: data.modo_compartilhamento || 'manual',
+        status: 'Pendente', // Status padrão para novos registros
+        data_cadastro: new Date().toISOString(),
+        link: data.link,
+        email_autorizacao: data.email_autorizacao,
+        cliente: data.cliente,
+        campanha: data.campanha,
+        periodo_inicio: data.periodo_inicio,
+        periodo_fim: data.periodo_fim,
+      }])
+      .select()
+      .single();
     
-    // Mock server-side processing
-    const newInfluencer: Influencer = {
-      id: Math.random().toString(36).substring(2, 11),
-      nome: data.nome || '',
-      email: data.email || '',
-      rede_social: data.rede_social || 'Instagram',
-      modo_compartilhamento: data.modo_compartilhamento || 'manual',
-      status: 'Pendente', // Always set status to "Pendente" for new registrations
-      data_cadastro: new Date().toISOString(),
-      link: data.link,
-      email_autorizacao: data.email_autorizacao,
-      cliente: data.cliente,
-      campanha: data.campanha,
-      periodo_inicio: data.periodo_inicio,
-      periodo_fim: data.periodo_fim,
-    };
+    if (error) {
+      console.error('Erro ao cadastrar influenciador:', error);
+      throw new Error(error.message);
+    }
     
-    mockInfluencers.push(newInfluencer);
-    return Promise.resolve(newInfluencer);
+    return newInfluencer as Influencer;
   },
 
-  // Listar influenciadores (staging)
+  // Listar influenciadores
   async getStagingInfluencers(): Promise<Influencer[]> {
-    console.log('Fetching staging influencers');
-    return Promise.resolve([...mockInfluencers]);
+    const { data, error } = await supabase
+      .from('influencers')
+      .select('*')
+      .order('data_cadastro', { ascending: false });
+    
+    if (error) {
+      console.error('Erro ao buscar influenciadores:', error);
+      throw new Error(error.message);
+    }
+    
+    return data as Influencer[];
   },
 
-  // Atualizar influenciador (staging)
+  // Atualizar influenciador
   async updateInfluencer(id: string, data: Partial<Influencer>): Promise<Influencer> {
-    console.log('Updating influencer:', id, data);
+    const { data: updatedInfluencer, error } = await supabase
+      .from('influencers')
+      .update(data)
+      .eq('id', id)
+      .select()
+      .single();
     
-    const index = mockInfluencers.findIndex(inf => inf.id === id);
-    if (index === -1) {
-      return Promise.reject(new Error('Influencer not found'));
+    if (error) {
+      console.error('Erro ao atualizar influenciador:', error);
+      throw new Error(error.message);
     }
     
-    const updatedInfluencer = {
-      ...mockInfluencers[index],
-      ...data
-    };
-    
-    mockInfluencers[index] = updatedInfluencer;
-    return Promise.resolve(updatedInfluencer);
+    return updatedInfluencer as Influencer;
   },
 
-  // Excluir influenciador (staging)
+  // Excluir influenciador
   async deleteInfluencer(id: string): Promise<void> {
-    console.log('Deleting influencer:', id);
+    const { error } = await supabase
+      .from('influencers')
+      .delete()
+      .eq('id', id);
     
-    const index = mockInfluencers.findIndex(inf => inf.id === id);
-    if (index === -1) {
-      return Promise.reject(new Error('Influencer not found'));
+    if (error) {
+      console.error('Erro ao excluir influenciador:', error);
+      throw new Error(error.message);
     }
     
-    mockInfluencers.splice(index, 1);
-    return Promise.resolve();
+    return;
   },
 
-  // Publicar influenciadores (merge para tabela final)
+  // Publicar influenciadores (para implementação futura com função de borda)
   async publishInfluencers(): Promise<{ count: number; names: string[] }> {
-    console.log('Publishing influencers');
+    // Aqui você poderia chamar uma função de borda do Supabase para processar os dados
+    // Por enquanto, apenas retornaremos informações sobre os influenciadores pendentes
     
-    // This would trigger a server-side merge operation
-    const names = mockInfluencers.map(inf => inf.nome);
-    const count = mockInfluencers.length;
+    const { data, error } = await supabase
+      .from('influencers')
+      .select('nome')
+      .eq('status', 'Pendente');
     
-    // In a real implementation, we would clear the staging table here
-    // For the mock, we'll just return the count and names
+    if (error) {
+      console.error('Erro ao publicar influenciadores:', error);
+      throw new Error(error.message);
+    }
     
-    return Promise.resolve({
-      count,
-      names
-    });
+    return {
+      count: data.length,
+      names: data.map(inf => inf.nome)
+    };
   }
 };
