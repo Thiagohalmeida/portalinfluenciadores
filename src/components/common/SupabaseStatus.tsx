@@ -28,7 +28,7 @@ export default function SupabaseStatus() {
       }
     }
 
-    // Pequeno atraso para garantir que as configurações foram carregadas
+    // Small delay to ensure configurations are loaded
     const timer = setTimeout(() => {
       checkConnection();
     }, 500);
@@ -53,9 +53,19 @@ export default function SupabaseStatus() {
       <AlertDescription>
         {connected
           ? "Sua aplicação está conectada corretamente ao Supabase."
-          : errorMessage 
-            ? `Há um problema na conexão com o Supabase: ${errorMessage}` 
-            : "Há um problema na conexão com o Supabase. Verifique se você configurou a integração corretamente."}
+          : (
+            <>
+              <p>
+                {errorMessage 
+                  ? `Há um problema na conexão com o Supabase: ${errorMessage}` 
+                  : "Há um problema na conexão com o Supabase."}
+              </p>
+              <p className="mt-2 font-medium">
+                Para conectar, clique no botão verde do Supabase no canto superior direito da tela e siga as instruções.
+              </p>
+            </>
+          )
+        }
       </AlertDescription>
     </Alert>
   );
