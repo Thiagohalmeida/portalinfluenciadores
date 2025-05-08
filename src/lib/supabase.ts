@@ -1,17 +1,34 @@
 
 import { createClient } from '@supabase/supabase-js';
 import type { Influencer } from '@/types/influencer';
+import { toast } from 'sonner';
 
 // Initialize Supabase client
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+// Since we're using the Lovable Supabase integration, we can access these values
+// from the window object, which is set by the Lovable Supabase integration
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 
+  (typeof window !== 'undefined' ? (window as any).__SUPABASE_URL__ : '');
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 
+  (typeof window !== 'undefined' ? (window as any).__SUPABASE_ANON_KEY__ : '');
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// Check if Supabase configuration is available
+if (!supabaseUrl || !supabaseAnonKey) {
+  console.error('Supabase URL or API key is missing. Make sure you have connected to Supabase via the Lovable integration.');
+}
+
+export const supabase = createClient(supabaseUrl || 'https://placeholder.supabase.co', supabaseAnonKey || 'placeholder');
 
 // Database functions for influencers
 export const db = {
   // Create a new influencer in Supabase
   async createInfluencer(data: Partial<Influencer>): Promise<{ data: Influencer | null; error: any }> {
+    if (!supabaseUrl || !supabaseAnonKey) {
+      toast('Configuration error: Supabase not properly configured', {
+        description: 'Please check your Supabase integration settings',
+      });
+      return { data: null, error: new Error('Supabase not configured') };
+    }
+
     // First, create in Supabase
     const { data: newInfluencer, error } = await supabase
       .from('influencers')
