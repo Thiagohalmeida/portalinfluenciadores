@@ -1,72 +1,35 @@
-
-import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertCircle, CheckCircle2 } from "lucide-react";
+import { useEffect, useState } from 'react'
+import { db } from '@/lib/supabase'
 
 export default function SupabaseStatus() {
-  const [connected, setConnected] = useState<boolean | null>(null);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [status, setStatus] = useState<'loading' | 'ok' | 'error'>('loading')
 
   useEffect(() => {
     async function checkConnection() {
       try {
-        const { data, error } = await supabase.from('influencers').select('count()', { count: 'exact', head: true });
-        
+        const { data, error } = await db.getInfluencers()
+
         if (error) {
-          console.error("Erro de conexão com Supabase:", error);
-          setConnected(false);
-          setErrorMessage(error.message);
+          console.error('SupabaseStatus → erro em getInfluencers():', error)
+          setStatus('error')
         } else {
-          setConnected(true);
-          setErrorMessage(null);
+          // mesmo que data seja [], consideramos OK
+          setStatus('ok')
         }
-      } catch (err: any) {
-        console.error("Erro ao verificar conexão com Supabase:", err);
-        setConnected(false);
-        setErrorMessage(err.message || "Erro desconhecido");
+      } catch (err) {
+        console.error('SupabaseStatus.catch →', err)
+        setStatus('error')
       }
     }
 
-    // Small delay to ensure configurations are loaded
-    const timer = setTimeout(() => {
-      checkConnection();
-    }, 500);
+    checkConnection()
+  }, [])
 
-    return () => clearTimeout(timer);
-  }, []);
-
-  if (connected === null) {
-    return <div>Verificando conexão com o Supabase...</div>;
+  if (status === 'loading') {
+    return <p>Verificando status da integração…</p>
   }
-
-  return (
-    <Alert variant={connected ? "default" : "destructive"} className="mt-4">
-      {connected ? (
-        <CheckCircle2 className="h-4 w-4" />
-      ) : (
-        <AlertCircle className="h-4 w-4" />
-      )}
-      <AlertTitle>
-        {connected ? "Supabase conectado" : "Supabase desconectado"}
-      </AlertTitle>
-      <AlertDescription>
-        {connected
-          ? "Sua aplicação está conectada corretamente ao Supabase."
-          : (
-            <>
-              <p>
-                {errorMessage 
-                  ? `Há um problema na conexão com o Supabase: ${errorMessage}` 
-                  : "Há um problema na conexão com o Supabase."}
-              </p>
-              <p className="mt-2 font-medium">
-                Para conectar, clique no botão verde do Supabase no canto superior direito da tela e siga as instruções.
-              </p>
-            </>
-          )
-        }
-      </AlertDescription>
-    </Alert>
-  );
+  if (status === 'ok') {
+    return <p style={{ color: 'green' }}>✅ Integração com Supabase OK</p>
+  }
+  return <p style={{ color: 'red' }}>❌ Erro na conexão com Supabase</p>
 }

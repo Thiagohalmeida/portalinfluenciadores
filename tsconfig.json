@@ -15,5 +15,12 @@
     "allowJs": true,
     "noUnusedLocals": false,
     "strictNullChecks": false
-  }
+  },
+  "include": [
+    "lib/**/*.ts",
+    "scripts/**/*.ts",
+    "src/**/*",
+    "pages/**/*",
+    "components/**/*"
+  ]
 }
