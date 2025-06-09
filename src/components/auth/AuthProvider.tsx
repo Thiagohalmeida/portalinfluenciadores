@@ -1,3 +1,4 @@
+// src/components/auth/AuthProvider.tsx
 import React, {
   createContext,
   useContext,
@@ -30,27 +31,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const { toast } = useToast()
 
   useEffect(() => {
-    // 1) Carrega sessão existente
+    // 1) Carrega sessão existente e já navega para /painel se houver
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session)
       setUser(session?.user ?? null)
       setLoading(false)
+      if (session) {
+        navigate('/painel')
+      }
     })
 
-    // 2) Inscreve-se em mudanças de Auth
+    // 2) Escuta mudanças de autenticação e navega quando fizer login
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_, session) => {
-      setSession(session)
-      setUser(session?.user ?? null)
+    } = supabase.auth.onAuthStateChange((_, newSession) => {
+      setSession(newSession)
+      setUser(newSession?.user ?? null)
       setLoading(false)
+      if (newSession) {
+        navigate('/painel')
+      }
     })
 
     // 3) Cleanup
     return () => {
       subscription.unsubscribe()
     }
-  }, [])
+  }, [navigate])
 
   const isAllowedDomain = (email: string) =>
     email.toLowerCase().endsWith('@controlf5.com.br')
@@ -69,7 +76,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         title: 'Login realizado com sucesso',
         description: 'Bem-vindo ao Portal de Influenciadores!',
       })
-      navigate('/painel')
+      // aqui o navigate também vai ocorrer pelo onAuthStateChange
     }
     return { error }
   }
@@ -82,7 +89,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           hd: 'controlf5.com.br',
           scope: 'openid profile email',
         },
-        redirectTo: `${window.location.origin}/painel`,
+        // volta só para a raiz (que está na whitelist do Supabase)
+        redirectTo: window.location.origin,
       },
     })
     if (error) {
